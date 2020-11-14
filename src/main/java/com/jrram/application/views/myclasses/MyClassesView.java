@@ -26,41 +26,164 @@ import java.util.List;
 @JsModule("./src/views/myclasses/my-classes-view.js")
 @Tag("my-classes-view")
 public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
+    // Class members
+    Teacher rafet = new Teacher("tobasei", "1");
+    ArrayList<Student> students;
 
-    boolean addCoursePressed = false;
+    // Adding course members
+    boolean addCoursePressed = false; // If add course button has been pressed
+    String newCourseInput; // Store input for new course
+    int selectedCourse = -1; // Index for which course has been selected
 
+    // Adding student members
+    boolean addStudentPressed = false; // If add student button has been pressed
+    String newStudentInput; // Store input for new student
+    int selectedStudent = -1; // Index for which student has been selected
+
+    // Adding assignment members
+    boolean addAssgnPressed = false; // If add student button has been pressed
+    String newAssgnInput; // Store input for new assignment
+    String newTypeInput; // Store input for assignment type
+    double newWeightInput; // Store input for assignment weight
+
+    // Model for data binding server-client
     public static interface MyClassesViewModel extends TemplateModel {
-        @Include({"name", "newCourseInput"})
+        // For dynamically loading class array into view
+        @Include({"name"})
         void setClasses(List<Course> classes);
         List<Course> getClasses();
 
+        // For dynamically loading student array into view
+        @Include({"name"})
+        void setStudents(List<Student> students);
+        List<Student> getStudents();
+
+        // For dynamically loading assignment array into view
+        @Include({"assgnName", "type", "weight"})
+        void setAssignments(List<Assignment> assignments);
+        List<Assignment> getAssignments();
+
+        // For dynamically loading student stats into view
+        @Include({"assgnName", "grade"})
+        void setStudentStats(List<Assignment> assignments);
+        List<Assignment> getStudentStats();
+
+        // Adding new courses
         String getNewCourseInput();
         void setNewCourseInput(String newCourseInput);
 
+        // Which course has been selected?
+        Double getSelectedCourse();
+        void setSelectedCourse(Double selectedCourse);
+
+        // Adding new students
+        String getNewStudentInput();
+        void setNewStudentInput(String newStudentInput);
+
+        // Which student has been selected?
+        Double getSelectedStudent();
+        void setSelectedStudent(Double selectedStudent);
+
+        // Adding new assignments
+        String getNewAssgnInput();
+        void setNewAssgnInput(String newAssgnInput);
+        String getNewTypeInput();
+        void setNewTypeInput(String newTypeInput);
+        String getNewWeightInput();
+        void setNewWeightInput(String newWeightInput);
+
+        // Flag that controls whether or not an input field will be rendered
         void setAddCoursePressed(boolean addCoursePressed);
 
-    }
+        // Flag that controls whether or not an input field will be rendered
+        void setAddStudentPressed(boolean addStudentPressed);
 
-    public void setIsValidConfig(boolean addCoursePressed) {
-        getModel().setAddCoursePressed(addCoursePressed);
-    }
-
-    public void setNewCourseInput(String newCourseInput) {
+        // Flag that controls whether or not an input field will be rendered
+        void setAddAssgnPressed(boolean addAssgnPressed);
 
     }
 
-
+    // Main Driver
     public MyClassesView() {
-        Teacher rafet = new Teacher("tobasei", "1");
+        // Instructors create classes
         rafet.classes = new ArrayList<Course>(Arrays.asList(
-                new Course("Java2", "123", 10),
-                new Course("This2OtherClass", "123", 10)
+                new Course("Intro to Java", "1", 3),
+                new Course("React Web-Apps", "2", 3)
         ));
 
-        getModel().setAddCoursePressed(addCoursePressed);
-        System.out.print(rafet.getClasses());
+        // Get class references
+        Course class1 = rafet.classes.get(0);
+        Course class2 = rafet.classes.get(1);
 
+        // These are the assignments for the classes taught by this professor
+        class1.assignments = new ArrayList<Assignment>(Arrays.asList(
+                new Assignment("HW", "1", "Homework 1", 20, "hw assignment", false),
+                new Assignment("HW", "2", "Homework 2", 20, "hw assignment", false)
+                ));
+
+        class2.assignments = new ArrayList<Assignment>(Arrays.asList(
+                new Assignment("PROJ", "1", "Project 1", 50, "proj assignment", false),
+                new Assignment("PROJ", "2", "Project 2", 50, "proj assignment", false)
+        ));
+
+        // Create some students
+        Student student1 = new Student("Little Timmy", "1", class1, class1.assignments);
+        Student student2 = new Student("Big Joe", "2", class1, class1.assignments);
+        Student student3 = new Student("Tony S", "1", class2, class2.assignments);
+        Student student4 = new Student("John C", "2", class2, class2.assignments);
+
+        // Add these students to the class objects
+        class1.students = new ArrayList<Student>(Arrays.asList(student1, student2));
+        class2.students = new ArrayList<Student>(Arrays.asList(student3, student4));
+
+
+        getModel().setAddCoursePressed(addCoursePressed);
         getModel().setClasses(rafet.classes);
+
+        // Event Listeners
+        getElement().addPropertyChangeListener("newCourseInput", event -> {
+            newCourseInput = getModel().getNewCourseInput();
+        });
+
+        getElement().addPropertyChangeListener("selectedCourse", event -> {
+            selectedCourse = (int) Math.round(getModel().getSelectedCourse());
+
+            Course selCourse = rafet.classes.get(selectedCourse);
+
+            getModel().setAssignments(selCourse.assignments);
+            getModel().setStudents(selCourse.students);
+
+            if (selectedStudent >= 0) {
+                Student selStudent = selCourse.students.get(selectedStudent);
+                getModel().setStudentStats(selStudent.assignments);
+            }
+        });
+
+        getElement().addPropertyChangeListener("newStudentInput", event -> {
+            newStudentInput = getModel().getNewStudentInput();
+        });
+
+        getElement().addPropertyChangeListener("selectedStudent", event -> {
+            selectedStudent = (int) Math.round(getModel().getSelectedStudent());
+            selectedCourse = (int) Math.round(getModel().getSelectedCourse());
+
+            Course selCourse = rafet.classes.get(selectedCourse);
+            Student selStudent = selCourse.students.get(selectedStudent);
+
+            getModel().setStudentStats(selStudent.assignments);
+        });
+
+        getElement().addPropertyChangeListener("newAssgnInput", event -> {
+            newAssgnInput = getModel().getNewAssgnInput();
+        });
+
+        getElement().addPropertyChangeListener("newTypeInput", event -> {
+            newTypeInput = getModel().getNewTypeInput();
+        });
+
+        getElement().addPropertyChangeListener("newWeightInput", event -> {
+            newWeightInput = Double.parseDouble(getModel().getNewWeightInput());
+        });
     }
 
 
@@ -68,14 +191,103 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
     private void onAddCourse() {
         addCoursePressed = !addCoursePressed;
         getModel().setAddCoursePressed(addCoursePressed);
-//        getModel().getClasses().add(new Course("Justadded", "123", 10));
     };
 
     @EventHandler
     private void confirmAddCourse() {
-        String input = getModel().getNewCourseInput();
-        System.out.println(input);
-        getModel().getClasses().add(new Course(input, "123", 10));
+        if (newCourseInput != null) {
+            if (!newCourseInput.matches("\\s*")) {
+                // add new course
+                rafet.classes.add(new Course(newCourseInput, "123", 10));
+
+                // update model
+                getModel().setClasses(rafet.classes);
+
+                // reset input field value
+                getModel().setNewCourseInput(null);
+
+                // hide input field again
+                addCoursePressed = !addCoursePressed;
+                getModel().setAddCoursePressed(addCoursePressed);
+            }
+        }
+    };
+
+    @EventHandler
+    private void onAddStudent() {
+        if (selectedCourse >= 0) {
+            addStudentPressed = !addStudentPressed;
+            getModel().setAddStudentPressed(addStudentPressed);
+        }
+    };
+
+    @EventHandler
+    private void confirmAddStudent() {
+        if (newStudentInput != null) {
+            if (!newStudentInput.matches("\\s*")) {
+
+                // Grab which course has been selected to add student to corresponding course
+                selectedCourse = (int) Math.round(getModel().getSelectedCourse());
+                Course selCourse = rafet.classes.get(selectedCourse);
+
+                // add new student
+                Student newStudent = new Student(newStudentInput, "123", selCourse, selCourse.assignments);
+                selCourse.students.add(newStudent);
+
+                // update model
+                getModel().setStudents(selCourse.students);
+
+                // reset input field value
+                getModel().setNewStudentInput(null);
+
+                // hide input field again
+                addStudentPressed = !addStudentPressed;
+                getModel().setAddStudentPressed(addStudentPressed);
+            }
+        }
+    };
+
+    @EventHandler
+    private void onAddAssgn() {
+        if (selectedCourse >= 0) {
+            addAssgnPressed = !addAssgnPressed;
+            getModel().setAddAssgnPressed(addAssgnPressed);
+        }
+    };
+
+    @EventHandler
+    private void confirmAddAssgn() {
+        String newWeightString = getModel().getNewWeightInput();
+        if (newAssgnInput != null && newTypeInput != null && newWeightString != null) {
+            if (!newAssgnInput.matches("\\s*") && !newTypeInput.matches("\\s*") && !newWeightString.matches("\\s*")) {
+
+                // Grab which course has been selected to add assignment to corresponding course
+                selectedCourse = (int) Math.round(getModel().getSelectedCourse());
+                Course selCourse = rafet.classes.get(selectedCourse);
+
+                // add new student
+                Assignment newAssignment = new Assignment(newTypeInput, "1", newAssgnInput, newWeightInput, "assignment", false);
+                selCourse.assignments.add(newAssignment);
+
+                // update model
+                getModel().setAssignments(selCourse.assignments);
+
+                selCourse.students.forEach(student -> {
+                    student.assignments.add(newAssignment);
+                    getModel().setStudentStats(student.assignments);
+                });
+
+                // reset input field value
+                getModel().setNewAssgnInput(null);
+                getModel().setNewTypeInput(null);
+                getModel().setNewWeightInput(null);
+
+
+                // hide input field again
+                addAssgnPressed = !addAssgnPressed;
+                getModel().setAddAssgnPressed(addAssgnPressed);
+            }
+        }
     };
 
     public static class Course {
@@ -122,6 +334,9 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
         boolean isLate;
 
         //constructors
+        public Assignment() {
+        };
+
         //6 arg constructor type id weight name weight and description
         public Assignment(String type, String id, String name, double weight, String description, boolean lateOrNah ) {
             this.type = type;
@@ -133,64 +348,19 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
         }
 
         //methods
-
-        //compare assignment names. If they match, the assignment has been found successfully
-        public boolean contains(String srchId) {
-            boolean flag = false;
-            if(srchId == this.assgnName)
-                flag=true;
-            return flag;
+        public String getAssgnName() {
+            return assgnName;
         }
-
-
-        //getter methods
-
-        //return the grade of the asisgnmnet
-        public String getGrade() {
-            String strGrade;
-            //if the assignment has been graded, return the grade
-            if (hasBeenGraded==true)
-                strGrade =  String.valueOf(this.grade);
-            else
-                //if it hasn't been graded return that.
-                strGrade="The assignment hasn't been graded yet";
-            return strGrade;
-
-        }
-
+        
         //return the assignment weight
         public double getWeight() {
-            return this.weight;
+            return weight;
         }
 
-        public String toString() {
-            String output="";
-
-            //the assignment hasn't been completed yet, print out relevant data
-            if(turnedin == false) {
-                //print out what course the assignment it for, what type of assignment it it
-                //print out date assignment is due
-                //Print out assignment description for user. Inform them they have not turned it in
-                output = ("Assignment for course: " + courseid + ", is a:" + type + "\n" +
-                        "Assignment description: " + description + "\nAssignment not turned in.\n");
-            }
-            else //assignment has been turned in, print out relevent data
-            {
-                //Printout what course assignment is for, and type of assignment
-                //Print out due date.
-                //print out description
-                output = ("Assignment for course: " + courseid + ", is a:" + type +
-                        "\nAssignment description: " + description);
-
-                if(this.hasBeenGraded==true)
-                    //if Assignment has been graded yet
-                    output += "\nAssignment grade: " + grade;
-                else //grade hasn't been assigned yet
-                    output += "\nAssignment has not been graded yet.";
-
-            }
-            return output;
+        public String getType() {
+            return type;
         }
+
     };
 
     public static class Teacher extends Person {
@@ -217,10 +387,13 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
 
         //data members
         private double gpa;
-        public ArrayList<Assignment>assignments;
+        public ArrayList<Assignment> assignments;
         public ArrayList<Course> classes;
 
         //constructors
+        public Student() {
+
+        }
 
         //2 arg costructor
         public Student(String name, String id) {
@@ -228,8 +401,8 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
             super(name, id);
             classes = new ArrayList<Course>();
             assignments = new ArrayList<Assignment>();
-
         }
+
         //3 arg constructor
         public Student(String name, String id, double pointAvg) {
             //call superclass constructor to set name and id
@@ -251,6 +424,18 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
             assignments = new ArrayList<Assignment>();
         }
 
+        //4 arg constructor no gpa, course supplied
+        public Student(String name, String id, Course course, ArrayList<Assignment> existingAssignments) {
+            //call person class constructor to set name and student id
+            super(name, id);
+            //create course array, ad the course to it
+            classes = new ArrayList<Course>();
+            classes.add(course);
+            //create assignment array
+            assignments = new ArrayList<Assignment>();
+            assignments.addAll(existingAssignments);
+        }
+
         //4 arg constructor
         public Student(String name, String id, double pointAvg, Course course) {
             //call person class constructor to set name and student id
@@ -264,21 +449,16 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
             assignments = new ArrayList<Assignment>();
         }
 
-        //methods
-
-        public void turnin(Assignment assgnm) {
-            //indicate the assignment has been turned in
-            assgnm.turnedin = true;
+        public ArrayList<Assignment> getAssignments() {
+            return assignments;
         }
 
-        //getter methods
-
-        //if found, add assignment to the student's assignments array
-        void getAssignment(Course course, String assgnName) {
-            boolean found=false;
+        // Assign course assignment to the student
+        public void assignAssignment(Course course, String assgnName) {
+            boolean found = false;
             //search through the course for a specified assignment
-            for(int i=0; i<course.assignments.size(); i++) {
-                if(course.assignments.get(i).assgnName == assgnName) {
+            for (int i = 0; i < course.assignments.size(); i++) {
+                if (course.assignments.get(i).assgnName == assgnName) {
                     //if the assignment is found, add it to the students asignment array
                     this.assignments.add(course.assignments.get(i));
                     found = true;
@@ -286,106 +466,9 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
             }
 
             //if the assignment has not been found
-            if(found ==false)
+            if (found == false) {
                 System.out.println("Assignment not found. Please check you have the right course or assignment name");
-        }
-
-        //return string of the assignment grade, or return a string indicating the assignment hasn't been graded yet
-        public String getAssignmentGrade(Assignment assgn) {
-            String assgnGrade;
-
-            assgnGrade = assgn.getGrade();
-
-            return assgnGrade;
-        }
-
-        //return grade of the student in a particular course
-        public double getCourseGrade(Course course) {
-            //variables
-            double classGrade;
-            double pointsMade= 0.0;
-            double pointsPossible=0.0;
-            String courseid = course.courseid;
-
-            //Go through students assignment, looking for assignments of the right course
-            for(int i =0; i < assignments.size(); i++) {
-                if(assignments.get(i).courseid == courseid) {
-                    //if the assignment is for the class we are searching for
-                    pointsPossible += assignments.get(i).getWeight();				//get the number of points possible
-                    pointsMade += Double.valueOf(assignments.get(i).getGrade());	//get the number of ponts made
-                }
             }
-
-            //calculate grade
-            classGrade= pointsMade/pointsPossible;
-            return classGrade;
-        }
-
-        //return overall gpa
-        public void calcGPA() {
-            //variables
-            double GPA;
-            double pointsMade=  0.0;
-            double pointsPossible= 0.0;
-            double totalCreditsEarned= 0.0;
-            double creditHourSum=0.0;
-            double[] gradeArray = new double[this.classes.size()];
-            String curClassId;
-            //get the total number of credit hours the student took
-            for(int i = 0; i < classes.size(); i++) {
-                creditHourSum += classes.get(i).creditHours;
-            }
-
-            //Accumulate the grades in each course
-            for(int i =0; i < classes.size(); i++) {
-                //get the course id, use this id to fiter through assignments by course
-                curClassId= classes.get(i).courseid;
-                //for each assignment in the course
-                for(int j =0; j < assignments.size(); j++) {
-                    //if the assignment belongs to the class we are accumulating.
-                    if(assignments.get(j).courseid == curClassId) {
-                        //accumulate the points possible and points made
-                        pointsPossible += assignments.get(j).getWeight();
-                        pointsMade += Double.valueOf(assignments.get(j).getGrade());
-                    }
-                }
-
-                //calculate the the grade for the course, store in an array
-                gradeArray[i] = pointsMade/pointsPossible;
-            }
-
-            //convert grade to a 4.0 scale
-            //A=4 B=3 C=2 D=1 F=0
-            for(int i=0; i < gradeArray.length; i++) {
-                if (gradeArray[i]>=90) 		//Grade is A
-                    gradeArray[i]=4.0;
-                else if(gradeArray[i]>=80)	//Grade is B
-                    gradeArray[i]=3.0;
-                else if (gradeArray[i]>=70)	//Grade is C
-                    gradeArray[i] = 2.0;
-                else if (gradeArray[i] >= 60)//Grade is D
-                    gradeArray[i]=1.0;
-                else 						 //Grade is F
-                    gradeArray[i]=0.0;
-            }
-
-            //accumulate the credits earned
-            for(int i =0; i<gradeArray.length; i++) {
-                totalCreditsEarned+=gradeArray[i] * classes.get(i).creditHours;
-            }
-
-            //calculate GPA
-            GPA = totalCreditsEarned/creditHourSum;
-
-            //set GPA
-            this.gpa = GPA;
-        }
-
-        //Printout Student object
-        public String toString() {
-            String stuStr;
-            stuStr = "Student: " + this.name + " UID: " + uid + " GPA: " + this.gpa;
-            return stuStr;
         }
     };
 
@@ -395,11 +478,10 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
         String name;
         String uid;
 
-        //constructors
+
         //empty constructor
         public Person() {
-            this.name = "\0";
-            this.uid = "\0";
+
         }
 
         //2arg constructor
@@ -408,11 +490,9 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
             this.uid = id;
         }
 
-        //print out details of person object if necessary.
-        public String toString() {
-            String output;
-            output = "Person: " + name +" UID: " + uid + "\n";
-            return output;
+
+        public String getName() {
+            return name;
         }
     };
 }
