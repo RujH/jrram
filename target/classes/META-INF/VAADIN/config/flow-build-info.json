@@ -1,0 +1,9 @@
+{
+  "compatibilityMode": false,
+  "productionMode": false,
+  "npmFolder": "/Users/arif/Projects/jrram",
+  "generatedFolder": "/Users/arif/Projects/jrram/target/frontend",
+  "frontendFolder": "/Users/arif/Projects/jrram/frontend",
+  "pnpm.enable": false,
+  "require.home.node": false
+}
