@@ -108,7 +108,11 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
         // Instructors create classes
         rafet.classes = new ArrayList<Course>(Arrays.asList(
                 new Course("Intro to Java", "1", 3),
-                new Course("React Web-Apps", "2", 3)
+                new Course("Web-Apps in React", "2", 3),
+                new Course("React Native", "3", 3),
+                new Course("Python Web-Apps", "4", 3),
+                new Course("Artificial Intelligence", "5", 3),
+                new Course("Java Spring", "6", 3)
         ));
 
         // Get class references
@@ -122,19 +126,33 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
                 ));
 
         class2.assignments = new ArrayList<Assignment>(Arrays.asList(
-                new Assignment("PROJ", "1", "Project 1", 50, "proj assignment", false),
-                new Assignment("PROJ", "2", "Project 2", 50, "proj assignment", false)
+                new Assignment("HW", "1", "Homework 1", 20, "proj assignment", false),
+                new Assignment("HW", "2", "Homework 2", 20, "proj assignment", false),
+                new Assignment("HW", "1", "Homework 3", 20, "proj assignment", false),
+                new Assignment("QUIZ", "2", "Quiz 1", 50, "proj assignment", false),
+                new Assignment("TEST", "1", "Test 1", 200, "proj assignment", false),
+                new Assignment("HW", "2", "Homework 4", 20, "proj assignment", false)
         ));
 
         // Create some students
         Student student1 = new Student("Little Timmy", "1", class1, class1.assignments);
+        Assignment tempAssgn = student1.assignments.get(0); tempAssgn.grade = 20;
         Student student2 = new Student("Big Joe", "2", class1, class1.assignments);
+        tempAssgn = student2.assignments.get(0); tempAssgn.grade = 10;
         Student student3 = new Student("Tony S", "1", class2, class2.assignments);
+        tempAssgn = student3.assignments.get(0); tempAssgn.grade = 18;
         Student student4 = new Student("John C", "2", class2, class2.assignments);
+        Student student5 = new Student("Bernard S", "3", class2, class2.assignments);
+        Student student6 = new Student("Jonathan B", "4", class2, class2.assignments);
+        Student student7 = new Student("Leroy J", "5", class2, class2.assignments);
+        Student student8 = new Student("Alex T", "6", class2, class2.assignments);
+        Student student9 = new Student("Joanne J", "7", class2, class2.assignments);
+        Student student10 = new Student("Margaret W", "8", class2, class2.assignments);
 
         // Add these students to the class objects
         class1.students = new ArrayList<Student>(Arrays.asList(student1, student2));
-        class2.students = new ArrayList<Student>(Arrays.asList(student3, student4));
+        class2.students = new ArrayList<Student>(Arrays.asList(student3, student4, student5,
+                student6, student7, student8, student9, student10));
 
 
         getModel().setAddCoursePressed(addCoursePressed);
@@ -147,7 +165,7 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
 
         getElement().addPropertyChangeListener("selectedCourse", event -> {
             selectedCourse = (int) Math.round(getModel().getSelectedCourse());
-            System.out.println(selectedCourse);
+//            System.out.println(selectedCourse);
             Course selCourse = rafet.classes.get(selectedCourse);
 
 
