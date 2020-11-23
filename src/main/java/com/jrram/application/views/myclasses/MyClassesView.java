@@ -147,16 +147,23 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
 
         getElement().addPropertyChangeListener("selectedCourse", event -> {
             selectedCourse = (int) Math.round(getModel().getSelectedCourse());
-
+            System.out.println(selectedCourse);
             Course selCourse = rafet.classes.get(selectedCourse);
+
 
             getModel().setAssignments(selCourse.assignments);
             getModel().setStudents(selCourse.students);
 
             if (selectedStudent >= 0) {
-                Student selStudent = selCourse.students.get(selectedStudent);
-                getModel().setStudentStats(selStudent.assignments);
+                if (selCourse.students.isEmpty()) {
+                    getModel().setStudentStats(null);
+                }
+                else {
+                    Student selStudent = selCourse.students.get(selectedStudent);
+                    getModel().setStudentStats(selStudent.assignments);
+                }
             }
+
         });
 
         getElement().addPropertyChangeListener("newStudentInput", event -> {
@@ -236,6 +243,7 @@ public class MyClassesView extends PolymerTemplate<MyClassesViewModel> {
 
                 // update model
                 getModel().setStudents(selCourse.students);
+                getModel().setStudentStats(selCourse.assignments);
 
                 // reset input field value
                 getModel().setNewStudentInput(null);
